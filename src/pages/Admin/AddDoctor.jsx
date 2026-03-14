@@ -54,6 +54,7 @@ const AddDoctor = () => {
 
         
         setDocImg(data.doctor.image);
+       setDocImg("")
 
         // Reset other form fields
         setName("");
@@ -76,7 +77,7 @@ const AddDoctor = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 min-h-screen bg-gray-100  rounded-xl">
       <form
         onSubmit={onSubmitHandler}
         className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto space-y-6"
