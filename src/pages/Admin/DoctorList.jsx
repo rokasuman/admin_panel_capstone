@@ -1,8 +1,11 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
-
+import { LiaEdit } from "react-icons/lia";
+import { MdDelete } from "react-icons/md";
+import AddEditDoctor from "./EditDoctor";
 const DoctorList = () => {
-  const { doctors, aToken, getAllDoctors } = useContext(AdminContext);
+  const { doctors, aToken, getAllDoctors,deleteDoctor} = useContext(AdminContext);
+  const[editingDoctor,setEditDoctor] = useState(null)
 
   useEffect(() => {
     if (aToken) getAllDoctors();
@@ -11,6 +14,13 @@ const DoctorList = () => {
   return (
     <div className="w-full p-6 bg-gray-100 min-h-screen rounded-2xl">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">All Doctors</h1>
+
+      {/*show form at top if edting*/}
+      {
+        editingDoctor && (
+          <AddEditDoctor editingDoctor={editingDoctor} setEditingDoctor={setEditDoctor}/>
+        )
+      }
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {doctors.map((doctor, index) => (
@@ -33,7 +43,7 @@ const DoctorList = () => {
               <p className="text-sm text-gray-500 mb-3">{doctor.speciality}</p>
 
               {/* Availability Toggle */}
-              <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="flex flex-col items-center gap-2 mb-3">
                 <span
                   className={`px-3 py-1 text-xs font-semibold rounded-full ${
                     doctor.avaiable
@@ -43,16 +53,17 @@ const DoctorList = () => {
                 >
                   {doctor.avaiable ? "Available" : "Unavailable"}
                 </span>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                  Edit
-                </button>
-                <button className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-                  Delete
-                </button>
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button onClick={()=>setEditDoctor(doctor)} className="flex items-center justify-center p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                    <LiaEdit size={18} />
+                  </button>
+
+                  <button onClick={()=>deleteDoctor(doctor._id)} className="flex items-center justify-center p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                    <MdDelete size={18} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

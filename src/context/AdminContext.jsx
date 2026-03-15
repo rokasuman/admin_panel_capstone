@@ -39,13 +39,48 @@ const AdminContextProvider = (props) => {
       toast.error(error.message);
     }
   };
+// deleting the doctor 
+const deleteDoctor =async (id)=>{
+  if(!window.confirm("Are you sure you want to delte the doctor?")) return;
+try {
+  const {data} = await axios.delete(`${backendURL}/api/admin/delete-doctor/${id}`,{headers:{atoken:aToken}});
+  if(data.success){
+    toast.success(data.message)
+    getAllDoctors()
+  }else{
+    toast.error(data.message || "Failed to delet the doctor")
+  }
+} catch (error) {
+  console.log(error)
+  toast.error("Server error while deleting the doctor")
+}
+} 
+//edting the doctor
+const editDoctor = async(id,formData)=>{
+  try {
+    const{data} = await axios.put(`${backendURL}/api/admin/edit-doctor/${id}`,formData,
+      {headers:{atoken:aToken,}}
+    )
+    if(data.success){
+      toast.success(data.message)
+      getAllDoctors()
+    }else{
+      toast.error(data.message)
+    }
+  } catch (error) {
+    console.log(error)
+    toast.error(error.response?.data?.message || "Failded to update doctor")
+  }
 
+}
   const value = {
     aToken,
     setAToken,
     backendURL,
     doctors,
     getAllDoctors,
+    deleteDoctor,
+    editDoctor,
   };
 
   return (
