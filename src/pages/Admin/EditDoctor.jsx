@@ -9,7 +9,7 @@ const AddEditDoctor = ({ editingDoctor, setEditingDoctor }) => {
   const [docImg, setDocImg] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // Only for add
+  const [password, setPassword] = useState(""); 
   const [experience, setExperience] = useState("1 year");
   const [fees, setFees] = useState("");
   const [about, setAbout] = useState("");
@@ -28,7 +28,7 @@ const AddEditDoctor = ({ editingDoctor, setEditingDoctor }) => {
       setSpeciality(editingDoctor.speciality || "General Physician");
       setDegree(editingDoctor.degree || "");
       setDocImg(editingDoctor.image || null);
-      setPassword(""); // don't prefill password
+      setPassword(""); 
     }
   }, [editingDoctor]);
 
@@ -63,7 +63,7 @@ const AddEditDoctor = ({ editingDoctor, setEditingDoctor }) => {
       if (editingDoctor) {
         // Edit doctor
         await editDoctor(editingDoctor._id, doctorData);
-        setEditingDoctor(null); // reset edit mode
+        setEditingDoctor(null); 
       } else {
         // Add doctor
         const response = await fetch(`${backendURL}/api/admin/add-doctor`, {

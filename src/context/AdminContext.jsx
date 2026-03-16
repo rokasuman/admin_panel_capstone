@@ -41,7 +41,7 @@ const AdminContextProvider = (props) => {
   };
 // deleting the doctor 
 const deleteDoctor =async (id)=>{
-  if(!window.confirm("Are you sure you want to delte the doctor?")) return;
+  if(!window.confirm("Are you sure you want to delete the doctor?")) return;
 try {
   const {data} = await axios.delete(`${backendURL}/api/admin/delete-doctor/${id}`,{headers:{atoken:aToken}});
   if(data.success){
@@ -59,7 +59,7 @@ try {
 const editDoctor = async(id,formData)=>{
   try {
     const{data} = await axios.put(`${backendURL}/api/admin/edit-doctor/${id}`,formData,
-      {headers:{atoken:aToken,}}
+      {headers:{atoken:aToken}}
     )
     if(data.success){
       toast.success(data.message)
@@ -73,6 +73,27 @@ const editDoctor = async(id,formData)=>{
   }
 
 }
+//changeing the availabilty
+const changeAvailability = async (docId) => {
+  try {
+    const { data } = await axios.post(
+      backendURL + "/api/admin/change-availability",
+      { docId },
+      { headers: { atoken: aToken } }
+    );
+
+    if (data.success) {
+      toast.success(data.message);
+      getAllDoctors();
+    } else {
+      toast.error(data.message);
+    }
+
+  } catch (error) {
+    console.log(error);
+    toast.error(error.message);
+  }
+};
   const value = {
     aToken,
     setAToken,
@@ -81,6 +102,8 @@ const editDoctor = async(id,formData)=>{
     getAllDoctors,
     deleteDoctor,
     editDoctor,
+    changeAvailability,
+
   };
 
   return (
