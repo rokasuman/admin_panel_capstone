@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react'
 import { AdminContext } from '../context/AdminContext'
 import { toast } from 'react-toastify'
 import axios from "axios"
+import { DoctorContext } from '../context/DoctorContext'
 
 
 const Login = () => {
@@ -16,32 +17,42 @@ const Login = () => {
 
     //DEstrucuring the adminconstext
     const {setAToken,backendURL} = useContext(AdminContext)
+    const { setDToken} = useContext(DoctorContext)
 
   //function to submit the form 
   const onSubmitHandler = async (event)=>{
    event.preventDefault()
 
    //api call 
-   try {
-    if(state==="Admin"){
-        const {data} = await axios.post(`${backendURL}/api/admin/login`,{email,password})
-        if(data.success){
-            //stroing token in localStroge
-            localStorage.setItem("aToken",data.token)
-            setAToken(data.token);
-            console.log("Token:",data.token)
-            toast.success("Login successfully")
-        }else{
-          toast.error("Invaild email or password")
-        }
+   
+try {
+  if (state === "Admin") {
+    const { data } = await axios.post(`${backendURL}/api/admin/login`, { email, password });
+
+    if (data.success) {
+      localStorage.setItem("aToken", data.token);
+      setAToken(data.token);
+      console.log("Token:", data.token);
+      toast.success("Login successfully");
+    } else {
+      toast.error("Invaild email or password");
     }
-   } catch (error) {
-    console.log(error)
-    toast.error("Some went wrong")
-    
-    
-   }
+  } else {
+    const { data } = await axios.post(`${backendURL}/api/doctor/login`, { email, password });
+
+    if (data.success) {
+      localStorage.setItem("dToken", data.token);
+      setDToken(data.token);
+      toast.success("Login Succcessfully");
+    } else {
+      toast.error("Invaild email or password");
+    }
   }
+} catch (error) {
+  console.log(error);
+  toast.error("Some went wrong");
+}
+}
 
 return (
     <form onSubmit={onSubmitHandler} className="min-h-screen flex items-center justify-center bg-gray-100">

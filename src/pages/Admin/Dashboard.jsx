@@ -1,102 +1,231 @@
 import React, { useContext, useEffect } from "react";
 import { AdminContext } from "../../context/AdminContext";
+import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets_admin/assets";
-import AppointmentsChart from "./AppointmentsChart";
+
+// Charts
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const Dashboard = () => {
-  const { dashData, getDashData, aToken, cancelAppointment } =
-    useContext(AdminContext);
+  const {
+    dashData,
+    getDashData,
+    aToken,
+    cancelAppointment,
+    getAllAppointments,
+  } = useContext(AdminContext);
+
+  const { slotedDateFormat } = useContext(AppContext);
 
   useEffect(() => {
     if (aToken) {
       getDashData();
+      getAllAppointments();
+
+      const interval = setInterval(() => {
+        getDashData();
+        getAllAppointments();
+      }, 5000);
+
+      return () => clearInterval(interval);
     }
   }, [aToken]);
 
+  if (!dashData) return null;
+
+  /* -- BAR CHART --*/
+  const doctorMap = {};
+
+  dashData.latestAppointment?.forEach((a) => {
+    const docName = a.docData?.name;
+    if (!doctorMap[docName]) doctorMap[docName] = 0;
+    doctorMap[docName]++;
+  });
+
+  const barData = {
+    labels: Object.keys(doctorMap),
+    datasets: [
+      {
+        label: "Patients",
+        data: Object.values(doctorMap),
+        backgroundColor: "rgba(34,197,94,0.7)",
+      },
+    ],
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: "Patients per Doctor" },
+    },
+  };
+
+  /*-- LINE CHART -- */
+  const labels =
+    dashData.latestAppointment?.map((a) => slotedDateFormat(a.slotDate)) || [];
+
+  const totalData = dashData.latestAppointment?.map(() => 1) || [];
+
+  const cancelledData =
+    dashData.latestAppointment?.map((a) => (a.cancel ? 1 : 0)) || [];
+
+  const lineData = {
+    labels,
+    datasets: [
+      {
+        label: "Total Appointments",
+        data: totalData,
+        borderColor: "rgba(59,130,246,1)",
+        backgroundColor: "rgba(59,130,246,0.2)",
+        tension: 0.3,
+        fill: true,
+      },
+      {
+        label: "Cancelled",
+        data: cancelledData,
+        borderColor: "rgba(239,68,68,1)",
+        backgroundColor: "rgba(239,68,68,0.2)",
+        tension: 0.3,
+        fill: true,
+      },
+    ],
+  };
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top" },
+      title: { display: true, text: "Appointments Trend" },
+    },
+  };
+
   return (
-    dashData && (
-      <div className="m-5 grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {/* Doctors Card */}
-        <div className="bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-md rounded-xl p-5 flex items-center space-x-4 transform hover:scale-105 transition duration-300">
-          <img src={assets.doctor_icon} alt="Doctor Icon" className="w-12 h-12" />
+    <div className="m-3 sm:m-5 grid grid-cols-1 gap-4 sm:gap-6">
+      {/* TOP CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-blue-500 text-white rounded-lg p-3 sm:p-4 flex items-center gap-3">
+          <img src={assets.doctor_icon} className="w-6 h-6 sm:w-8 sm:h-8" />
           <div>
-            <p className="text-2xl font-bold">{dashData.doctors}</p>
-            <p className="text-sm uppercase tracking-wide text-gray-200">Doctors</p>
+            <p className="text-lg sm:text-xl font-bold">{dashData.doctors}</p>
+            <p className="text-[10px] sm:text-xs uppercase">Doctors</p>
           </div>
         </div>
 
-        {/* Appointments Card */}
-        <div className="bg-gradient-to-r from-purple-400 to-purple-600 text-white shadow-md rounded-xl p-5 flex items-center space-x-4 transform hover:scale-105 transition duration-300">
-          <img src={assets.appointments_icon} alt="Appointments Icon" className="w-12 h-12" />
+        <div className="bg-purple-500 text-white rounded-lg p-3 sm:p-4 flex items-center gap-3">
+          <img
+            src={assets.appointments_icon}
+            className="w-6 h-6 sm:w-8 sm:h-8"
+          />
           <div>
-            <p className="text-2xl font-bold">{dashData.appointments}</p>
-            <p className="text-sm uppercase tracking-wide text-gray-200">Appointments</p>
+            <p className="text-lg sm:text-xl font-bold">
+              {dashData.appointments}
+            </p>
+            <p className="text-[10px] sm:text-xs uppercase">Appointments</p>
           </div>
         </div>
 
-        {/* Patients Card */}
-        <div className="bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md rounded-xl p-5 flex items-center space-x-4 transform hover:scale-105 transition duration-300">
-          <img src={assets.patients_icon} alt="Patients Icon" className="w-12 h-12" />
+        <div className="bg-green-500 text-white rounded-lg p-3 sm:p-4 flex items-center gap-3">
+          <img src={assets.patients_icon} className="w-6 h-6 sm:w-8 sm:h-8" />
           <div>
-            <p className="text-2xl font-bold">{dashData.patients}</p>
-            <p className="text-sm uppercase tracking-wide text-gray-200">Patients</p>
+            <p className="text-lg sm:text-xl font-bold">{dashData.patients}</p>
+            <p className="text-[10px] sm:text-xs uppercase">Patients</p>
           </div>
         </div>
-
-        {/* Latest Booking - full width */}
-        <div className="sm:col-span-3 bg-white shadow-lg rounded-xl p-5 mt-6">
-          {/* Header */}
-          <div className="flex items-center space-x-3 mb-4">
-            <img src={assets.list_icon} alt="Latest Booking Icon" className="w-10 h-10" />
-            <div>
-              <p className="text-2xl font-bold">{dashData.latestAppointment?.length || 0}</p>
-              <p className="text-sm uppercase text-gray-600">Latest Booking</p>
-            </div>
-          </div>
-           {/* Chart Component */}
-      <div className="sm:col-span-3 bg-white shadow-lg rounded-xl p-5 mt-6">
-        <AppointmentsChart latestAppointments={dashData.latestAppointment} />
       </div>
 
-          {/* Latest Appointments List */}
-          <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto mt-6">
-            {dashData.latestAppointment.map((item, index) => (
+      {/* CHARTS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-white p-3 sm:p-4 rounded-xl shadow h-[250px] sm:h-[300px]">
+          <Bar data={barData} options={barOptions} />
+        </div>
+
+        <div className="bg-white p-3 sm:p-4 rounded-xl shadow h-[250px] sm:h-[300px]">
+          <Line data={lineData} options={lineOptions} />
+        </div>
+      </div>
+
+      {/* APPOINTMENTS */}
+      <div className="bg-white shadow rounded-xl p-3 sm:p-4">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3">
+          Latest Appointments
+        </h2>
+
+        <div className="divide-y divide-gray-200 max-h-[300px] sm:max-h-96 overflow-y-auto">
+          {dashData?.latestAppointment?.length === 0 ? (
+            <div className="text-center py-10 text-gray-500">
+              No Appointment has been made
+            </div>
+          ) : (
+            dashData.latestAppointment.map((item, index) => (
               <div
                 key={index}
-                className="bg-gray-50 shadow rounded-lg p-3 flex items-center justify-between hover:bg-gray-100 transition-colors duration-200"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded"
               >
-                {/* Doctor Info */}
-                <div className="flex items-center space-x-3">
+                {/* USER */}
+                <div className="flex items-center gap-3">
                   <img
-                    src={item.docData.image}
-                    alt={item.docData.name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    src={item.userData?.image || item.docData?.image}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                   />
                   <div>
-                    <p className="text-gray-800 font-medium">{item.docData.name}</p>
-                    <p className="text-gray-500 text-sm">{item.slotDate}</p>
+                    <p className="font-medium text-sm sm:text-base">
+                      {item.userData?.name}
+                    </p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      {slotedDateFormat(item.slotDate)}, {item.slotTime}
+                    </p>
                   </div>
                 </div>
 
-                {/* Cancel / Status */}
-                <div>
+                {/* STATUS */}
+                <div className="self-end sm:self-auto">
                   {item.cancel ? (
-                    <p className="text-red-500 text-sm font-medium">Cancelled</p>
+                    <p className="text-red-400 text-xs sm:text-sm font-medium">
+                      Cancel
+                    </p>
+                  ) : item.isCompleted ? (
+                    <p className="text-green-400 text-xs sm:text-sm font-medium">
+                      Completed
+                    </p>
                   ) : (
                     <img
                       onClick={() => cancelAppointment(item._id)}
                       src={assets.cancel_icon}
-                      alt="Cancel"
-                      className="w-12 h-12 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                      className="w-8 h-8 sm:w-10 sm:h-10 cursor-pointer"
                     />
                   )}
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
       </div>
-    )
+    </div>
   );
 };
 

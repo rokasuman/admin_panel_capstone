@@ -1,15 +1,16 @@
-import { createContext, useState } from "react";
+import { createContext, useState,useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {useNavigate} from "react-router-dom"
 
 export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
 
+  const navigate = useNavigate()
+
   // state to store the token
-  const [aToken, setAToken] = useState(
-    localStorage.getItem("aToken") ? localStorage.getItem("aToken") : ""
-  );
+ const [aToken, setAToken] = useState(localStorage.getItem("aToken") || "");
 
   // state to store doctors
   const [doctors, setDoctors] = useState([]);
@@ -32,7 +33,7 @@ const AdminContextProvider = (props) => {
 
       if (data.success) {
         setDoctors(data.doctors);
-        console.log(data.doctors);
+        
       } else {
         toast.error(data.message);
       }
@@ -46,7 +47,7 @@ const AdminContextProvider = (props) => {
 const deleteDoctor =async (id)=>{
   if(!window.confirm("Are you sure you want to delete the doctor?")) return;
 try {
-  const {data} = await axios.delete(`${backendURL}/api/admin/delete-doctor/${id}`,{headers:{atoken:aToken}});
+  const {data} = await axios.delete(`${backendURL}/api/admin/delete-doctor/${id}`,{headers:{aToken}});
   if(data.success){
     toast.success(data.message)
     getAllDoctors()
@@ -106,10 +107,11 @@ const changeAvailability = async (docId) => {
 
     try {
       const {data} = await axios.get(backendURL + "/api/admin/appointments",{headers:{aToken}})
-      console.log("appointments APIS :" , data)
+     
 
       if(data.success){
         setAppointments(data.appointments)
+     
       }else{
         toast.error(data.message)
       }
@@ -125,7 +127,7 @@ const changeAvailability = async (docId) => {
 
       if(data.success){
         toast.success(data.message)
-        getAllAppointments()
+     
       }else{
         toast.error(data.message)
       }
@@ -136,9 +138,10 @@ const changeAvailability = async (docId) => {
 
   };
   //state to store the dashData 
-  const[dashData,setDashData] = useState(false)
+  const[dashData,setDashData] = useState(null)
 
   const getDashData = async ()=>{
+    setDashData(null)
 
     try {
       const {data} = await axios.get( backendURL + "/api/admin/dashboard",{headers:{aToken}})
@@ -169,9 +172,15 @@ const changeAvailability = async (docId) => {
     cancelAppointment,
     dashData,
     getDashData
+    
+    
 
   };
-  
+  useEffect(()=>{
+    if(aToken){
+      navigate("/admin-dashboard")
+    }
+  },[aToken])
   
   return (
     <AdminContext.Provider value={value}>

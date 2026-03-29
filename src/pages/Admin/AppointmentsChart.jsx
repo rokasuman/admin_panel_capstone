@@ -1,98 +1,77 @@
 import React from "react";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const AppointmentsChart = ({ latestAppointments }) => {
-  // Group appointments by date
-  const grouped = {};
-  latestAppointments.forEach((a) => {
-    const date = a.slotDate;
-    if (!grouped[date]) grouped[date] = { total: 0, completed: 0, cancelled: 0 };
-    grouped[date].total += 1;
-    if (a.cancel) grouped[date].cancelled += 1;
-    else grouped[date].completed += 1;
+const PatientsBarChart = ({ appointments }) => {
+  const doctorMap = {};
+  appointments.forEach((a) => {
+    const doc = a.docData;
+    if (!doctorMap[doc.name]) doctorMap[doc.name] = 0;
+    doctorMap[doc.name] += 1;
   });
 
-  const labels = Object.keys(grouped);
-  const totalData = Object.values(grouped).map((d) => d.total);
-  const completedRate = Object.values(grouped).map((d) =>
-    ((d.completed / d.total) * 100).toFixed(0)
-  );
-  const cancelledRate = Object.values(grouped).map((d) =>
-    ((d.cancelled / d.total) * 100).toFixed(0)
-  );
+  const labels = Object.keys(doctorMap);
+  const dataValues = Object.values(doctorMap);
 
   const data = {
     labels,
     datasets: [
       {
-        label: "Total Appointments",
-        data: totalData,
-        borderColor: "rgba(99, 102, 241, 0.8)", // Indigo
-        backgroundColor: "rgba(99, 102, 241, 0.2)",
-        tension: 0.3,
-        fill: true,
-      },
-      {
-        label: "Completed Rate (%)",
-        data: completedRate,
-        borderColor: "rgba(16, 185, 129, 0.8)", // Green
-        backgroundColor: "rgba(16, 185, 129, 0.2)",
-        tension: 0.3,
-        fill: true,
-        yAxisID: "rateAxis",
-      },
-      {
-        label: "Cancelled Rate (%)",
-        data: cancelledRate,
-        borderColor: "rgba(239, 68, 68, 0.8)", // Red
-        backgroundColor: "rgba(239, 68, 68, 0.2)",
-        tension: 0.3,
-        fill: true,
-        yAxisID: "rateAxis",
+        label: "Patients",
+        data: dataValues,
+        backgroundColor: "rgba(34, 197, 94, 0.7)",
+        borderRadius: 6,
+        barThickness: "flex",
       },
     ],
   };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false, // 🔥 important for responsiveness
     plugins: {
-      legend: { position: "top" },
-      title: { display: true, text: "Appointments & Rates" },
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "Patients per Doctor",
+        font: {
+          size: window.innerWidth < 640 ? 14 : 18, // responsive title
+        },
+      },
     },
     scales: {
-      y: { beginAtZero: true, title: { display: true, text: "Total Appointments" } },
-      rateAxis: {
-        type: "linear",
-        position: "right",
-        beginAtZero: true,
-        max: 100,
-        ticks: { callback: (v) => v + "%" },
-        title: { display: true, text: "Rate (%)" },
+      x: {
+        ticks: {
+          font: {
+            size: window.innerWidth < 640 ? 10 : 12, // smaller on mobile
+          },
+        },
+      },
+      y: {
+        ticks: {
+          font: {
+            size: window.innerWidth < 640 ? 10 : 12,
+          },
+        },
       },
     },
   };
 
-  return <Line data={data} options={options} />;
+  return (
+    <div className="w-full h-[250px] sm:h-[300px] lg:h-[350px]">
+      <Bar data={data} options={options} />
+    </div>
+  );
 };
 
-export default AppointmentsChart;
+export default PatientsBarChart;
