@@ -107,7 +107,7 @@ const changeAvailability = async (docId) => {
 
     try {
       const {data} = await axios.get(backendURL + "/api/admin/appointments",{headers:{aToken}})
-     
+     setAppointments(data,appointments)
 
       if(data.success){
         setAppointments(data.appointments)

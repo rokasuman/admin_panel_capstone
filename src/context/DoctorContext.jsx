@@ -18,7 +18,7 @@ const DoctorContextPrvider = (props)=>{
 
         try {
             const {data} = await axios.get(backendUrl + "/api/doctor/appointments",{headers:{dToken}})
-
+             setAppointments(data.appointments)
             if(data.success){
                 setAppointments(data.appointments)
                 console.log(data.appointments)

@@ -47,7 +47,6 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
-     
         <div className="bg-gray-300 text-black rounded-lg p-4 flex items-center space-x-3">
           <img src={assets.appointments_icon} alt="" className="w-8 h-8" />
           <div>
@@ -56,8 +55,7 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
-  
-        <div className="bg-gray-300 text-black rounded-lg p-4 flex items-center space-x-3">
+          <div className="bg-gray-300 text-black rounded-lg p-4 flex items-center space-x-3">
           <img src={assets.patients_icon} alt="" className="w-8 h-8" />
           <div>
             <p className="text-xl font-bold">{dashData.patients || 0}</p>

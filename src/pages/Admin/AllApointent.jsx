@@ -10,7 +10,7 @@ const AllAppointments = () => {
   const { calculateAge, slotedDateFormat, currency } =
     useContext(AppContext)
 
-  // 🔍 Search state
+  //  Search state
   const [search, setSearch] = useState("")
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const AllAppointments = () => {
     }
   }, [aToken])
 
-  // 🔍 Filter appointments by patient name
+  // Filter appointments by patient name
   const filteredAppointments = appointments.filter((item) =>
     item.userData?.name
       ?.toLowerCase()

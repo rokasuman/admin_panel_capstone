@@ -44,12 +44,7 @@ const Dashboard = () => {
       getDashData();
       getAllAppointments();
 
-      const interval = setInterval(() => {
-        getDashData();
-        getAllAppointments();
-      }, 5000);
-
-      return () => clearInterval(interval);
+      
     }
   }, [aToken]);
 
@@ -125,7 +120,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="m-3 sm:m-5 grid grid-cols-1 gap-4 sm:gap-6">
+    <div className="m-3 sm:m- grid grid-cols-1 gap-4 sm:gap-6">
       {/* TOP CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="bg-blue-500 text-white rounded-lg p-3 sm:p-4 flex items-center gap-3">
@@ -148,15 +143,15 @@ const Dashboard = () => {
             <p className="text-[10px] sm:text-xs uppercase">Appointments</p>
           </div>
         </div>
-
-        <div className="bg-green-500 text-white rounded-lg p-3 sm:p-4 flex items-center gap-3">
-          <img src={assets.patients_icon} className="w-6 h-6 sm:w-8 sm:h-8" />
-          <div>
-            <p className="text-lg sm:text-xl font-bold">{dashData.patients}</p>
-            <p className="text-[10px] sm:text-xs uppercase">Patients</p>
-          </div>
+         <div className="bg-gray-300 text-black rounded-lg p-4 flex items-center space-x-3">
+        <img src={assets.patients_icon} alt="" className="w-8 h-8" />
+        <div>
+          <p className="text-xl font-bold">{dashData.patients || 0}</p>
+          <p className="text-xs uppercase">Patients</p>
         </div>
       </div>
+      </div>
+     
 
       {/* CHARTS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
